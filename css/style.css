@@ -1,0 +1,19 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+table {
+    border-collapse: collapse;
+    width: auto; 
+    table-layout: auto;
+    overflow-x: auto;
+    max-width: fit-content;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    white-space: nowrap; 
+}
