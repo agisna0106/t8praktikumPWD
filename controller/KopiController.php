@@ -1,18 +1,27 @@
 <?php
-require_once 'model/Kopi.php';
+require_once __DIR__ . '/../model/Database.php';
 
 class KopiController {
-    private $kopi;
+    private $db;
     public function __construct()
     {
-        $kopi = new Kopi();
+        $this->db = new Database();
     }
-    
-    public function exportToJson($filename = 'dataKopi.json') {
-        $data = $this->kopi->tampil('kopi');
-        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        file_put_contents($filename, $json);
-        return $filename;
+
+    public function getAllKopi () {
+        return $this->db->select('kopi');
+    }
+
+    public function addKopi($data) {
+        return $this->db->insert('kopi', $data);
+    }
+
+    public function updateKopi($data, $id) {
+        return $this->db->update('kopi', $data, $id);
+    }
+
+    public function deleteKopi() {
+        return $this->db->delete('kopi');
     }
 }
 

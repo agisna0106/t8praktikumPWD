@@ -12,4 +12,8 @@ class Kopi {
     function tampil($table) {
         return $this->db->select($table);
     }
+
+    function insert($table, $rows) {
+        return $this->db->insert($table, $rows);
+    }
 }
