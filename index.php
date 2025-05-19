@@ -19,13 +19,13 @@ $datas = $kopi->getAllKopi();
     </nav>
     <section class="content">
         <form method="post">
-            <label>Nama Kopi:</label><br>
+            <label>Nama Kopi&nbsp;&nbsp;:</label>
             <input type="text" name="nama" required><br>
             
-            <label>Stok:</label><br>
+            <label>Stok &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
             <input type="number" name="stock" required><br>
             
-            <label>Harga:</label><br>
+            <label>Harga &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
             <input type="number" name="harga" required><br><br>
             
             <button type="submit" name="submit">Tambah</button>
