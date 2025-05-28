@@ -2,13 +2,13 @@
 session_start();
 require_once 'controller/KopiController.php';
 
-if (!isset($_SESSION['user'])) {
+if (!isset($_SESSION['users'])) {
     header('location: auth/login.php');
     exit;
 }
 
-$role = $_SESSION['user']['role'] ?? null;
-$nama = $_SESSION['user']['nama'] ?? null;
+$role = $_SESSION['users']['role'] ?? null;
+$nama = $_SESSION['users']['nama'] ?? null;
 
 $kopi = new KopiController();
 $datas = $kopi->getAllKopi();
@@ -28,9 +28,7 @@ $datas = $kopi->getAllKopi();
     <nav>
         <h2>KOPIKU</h2>
         <div style="float: right;" class="nav-buttons">
-            <span>Halo, <?= $_SESSION['user']['nama']; ?> (<?= $role; ?>)</span>
-            <a href="auth/login.php"><button type="button">Login</button></a>
-            <a href="auth/register.php"><button type="button">Register</button></a>
+            <span style="margin-top: 5px;">Halo, <?= $_SESSION['users']['nama']; ?> (<?= $role; ?>)</span>
             <a href="auth/logout.php" onclick="return confirm('Yakin ingin logout?')">
                 <button type="button">Logout</button>
             </a>
@@ -65,6 +63,7 @@ $datas = $kopi->getAllKopi();
 
             $kopi->addKopi($data);
             echo "<script>alert('Data Berhasil Di Simpah');</script>";
+            exit;
 
             header("Location: index.php");
         }

@@ -1,47 +1,46 @@
 <?php
-require '../model/Database.php';
+session_start();
+require_once '../model/Database.php';
 
 $db = new Database();
 $conn = $db->mysqli;
 
-$message = '';
+$error = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nama = trim($_POST['nama']);
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    // Cek apakah username sudah digunakan
-    $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
+    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
+    $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
-    $stmt->store_result();
 
-    if ($stmt->num_rows > 0) {
-        $message = "❌ Username sudah digunakan. Silakan pilih yang lain.";
+    $result = $stmt->get_result();
+
+    if ($result && $result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+
+        $_SESSION['users'] = [
+            'id' => $user['id'],
+            'nama' => $user['nama'],
+            'username' => $user['username'],
+            'role' => $user['role']
+        ];
+
+        header("Location: ../index.php");
+        exit;
     } else {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $role = 'viewer'; // default
-
-        $stmt = $conn->prepare("INSERT INTO users (nama, username, password, role) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $nama, $username, $hashedPassword, $role);
-
-        if ($stmt->execute()) {
-            $message = "✅ Registrasi berhasil! <a href='login.php'>Login di sini</a>.";
-        } else {
-            $message = "❌ Terjadi kesalahan saat registrasi.";
-        }
+        $error = "Username atau password salah!";
     }
-
-    $stmt->close();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
-    <title>Register Page</title>
+    <title>Login Page</title>
     <style>
         body {
             margin: 0;
@@ -54,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
         }
 
-        .register-box {
+        .login-box {
             background-color: #1a1a1a;
             padding: 40px;
             border-radius: 8px;
@@ -64,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
         }
 
-        .register-box img {
+        .login-box img {
             max-width: 120px;
             margin-bottom: 20px;
         }
@@ -88,7 +87,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             display: block;
         }
 
-        input {
+        input[type="text"],
+        input[type="password"] {
             width: 100%;
             padding: 12px;
             font-size: 14px;
@@ -97,6 +97,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 6px;
             color: white;
             box-sizing: border-box;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
         }
 
         button {
@@ -149,17 +155,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <div class="register-box">
-        <h1>Register</h1>
+    <div class="login-box">
+        <h1>Sign in to your account</h1>
 
         <form method="POST">
             <div>
-                <label for="nama">Nama</label>
-                <input type="text" name="nama" id="nama" placeholder="Nama" required />
-            </div>
-            <div>
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username" placeholder="username" required />
+                <label for="username">Your email</label>
+                <input type="text" name="username" id="username" placeholder="Username" required />
             </div>
 
             <div>
@@ -167,11 +169,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="password" name="password" id="password" placeholder="••••••••" required />
             </div>
 
-            <button type="submit" name="submit">Register</button>
-            <?= "<script>alert('Data Berhasil Diupdate'); window.location.href='login.php';</script>"; ?>
+            <?php if (!empty($error)): ?>
+                <div class="error"><?= $error ?></div>
+            <?php endif; ?>
+
+            <button type="submit" name="login">Sign in</button>
 
             <p class="signup">
-                Already have an account? <a href="loginForm.php">Sign in</a>
+                Don’t have an account yet?
+                <a href="register.php">Sign up</a>
             </p>
         </form>
     </div>
