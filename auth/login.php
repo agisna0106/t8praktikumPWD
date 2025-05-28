@@ -1,3 +1,40 @@
+<?php
+session_start();
+require_once '../model/Database.php';
+
+$db = new Database();
+$conn = $db->mysqli;
+
+$error = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($result && $result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+
+        $_SESSION['user'] = [
+            'id' => $user['id'],
+            'nama' => $user['nama'],
+            'username' => $user['username'],
+            'role' => $user['role']
+        ];
+
+        header("Location: index.php");
+        exit;
+    } else {
+        $error = "Username atau password salah!";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,7 +87,7 @@
             display: block;
         }
 
-        input[type="email"],
+        input[type="text"],
         input[type="password"] {
             width: 100%;
             padding: 12px;
@@ -123,14 +160,18 @@
 
         <form method="POST">
             <div>
-                <label for="email">Your email</label>
-                <input type="email" name="email" id="email" placeholder="name@company.com" required />
+                <label for="username">Your email</label>
+                <input type="text" name="username" id="username" placeholder="Username" required />
             </div>
 
             <div>
                 <label for="password">Password</label>
                 <input type="password" name="password" id="password" placeholder="••••••••" required />
             </div>
+
+            <?php if (!empty($error)): ?>
+                <div class="error"><?= $error ?></div>
+            <?php endif; ?>
 
             <button type="submit" name="login">Sign in</button>
 

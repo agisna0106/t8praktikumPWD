@@ -3,11 +3,33 @@ nav {
     color: white;
     background-color: brown;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
     padding: 16px;
     font-size: 18px;
     font-weight: bold;
+}
+
+.nav-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+nav a button {
+    background-color: #fff;
+    color: #4B2C20;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+nav a button:hover {
+    background-color: #e6e6e6;
 }
 
 /* CONTENT WRAPPER */

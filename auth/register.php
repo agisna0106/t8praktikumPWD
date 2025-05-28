@@ -1,3 +1,41 @@
+<?php
+require '../model/Database.php';
+
+$db = new Database();
+$conn = $db->mysqli;
+
+$message = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nama = trim($_POST['nama']);
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    // Cek apakah username sudah digunakan
+    $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        $message = "❌ Username sudah digunakan. Silakan pilih yang lain.";
+    } else {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $role = 'viewer'; // default
+
+        $stmt = $conn->prepare("INSERT INTO users (nama, username, password, role) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $nama, $username, $hashedPassword, $role);
+
+        if ($stmt->execute()) {
+            $message = "✅ Registrasi berhasil! <a href='login.php'>Login di sini</a>.";
+        } else {
+            $message = "❌ Terjadi kesalahan saat registrasi.";
+        }
+    }
+
+    $stmt->close();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -116,12 +154,12 @@
 
         <form method="POST">
             <div>
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username" placeholder="username" required />
+                <label for="nama">Nama</label>
+                <input type="text" name="nama" id="nama" placeholder="Nama" required />
             </div>
             <div>
-                <label for="email">Your email</label>
-                <input type="email" name="email" id="email" placeholder="name@company.com" required />
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" placeholder="username" required />
             </div>
 
             <div>
@@ -130,6 +168,7 @@
             </div>
 
             <button type="submit" name="submit">Register</button>
+            <?= "<script>alert('Data Berhasil Diupdate'); window.location.href='login.php';</script>"; ?>
 
             <p class="signup">
                 Already have an account? <a href="loginForm.php">Sign in</a>
