@@ -1,8 +1,12 @@
 <?php
-session_start();
+require_once 'session.php';
 
-session_unset();
+// Hapus semua variabel sesi
+$_SESSION = [];
+
+// Hancurkan sesi
 session_destroy();
 
-header("Location: login.php");
+// Redirect ke form login
+header("Location: loginForm.php");
 exit;

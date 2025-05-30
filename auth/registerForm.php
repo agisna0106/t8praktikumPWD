@@ -1,47 +1,11 @@
 <?php
-require '../model/Database.php';
 
-$db = new Database();
-$conn = $db->mysqli;
+require_once 'register.php';
 
-$message = '';
+$reg = new Register();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
-    $nama = $_POST['nama'];
-    $username = $_POST['username'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $role = 'viewer'; // default role
-
-    // Cek apakah username sudah digunakan
-    $check = $conn->prepare("SELECT id FROM users WHERE username = ?");
-    if ($check) {
-        $check->bind_param("s", $username);
-        $check->execute();
-        $check->store_result();
-
-        if ($check->num_rows > 0) {
-            $message = "❌ Username sudah digunakan. Silakan pilih yang lain.";
-        } else {
-            $query = "INSERT INTO users (nama, username, password, role) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param("ssss", $nama, $username, $password, $role);
-
-            if ($stmt->execute()) {
-                $message = '✅ Registrasi berhasil! Anda akan diarahkan ke halaman login...';
-                // Redirect otomatis setelah 3 detik
-                echo "<script>alert('register berhasil);</script>";
-                echo "<script>windows.location.href='login.php'; </script>";
-            } else {
-                $message = '❌ Terjadi kesalahan saat menyimpan data.';
-            }
-
-            $stmt->close();
-        }
-
-        $check->close();
-    } else {
-        $message = "❌ Gagal menyiapkan query untuk cek username.";
-    }
+if($_SERVER['REQUEST_METHOD'] == 'POST') {    
+    $reg->register();
 }
 ?>
 <!DOCTYPE html>
@@ -160,7 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     <div class="register-box">
         <h1>Register</h1>
 
-        <form method="POST">
+        <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
             <div>
                 <label for="nama">Nama</label>
                 <input type="text" name="nama" id="nama" placeholder="Nama" required />
@@ -175,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
                 <input type="password" name="password" id="password" placeholder="••••••••" required />
             </div>
 
-            <button type="submit" name="submit">Register</button>
+            <button type="submit" name="register" value="REGISTER">Register</button>
 
             <p class="signup">
                 Already have an account? <a href="loginForm.php">Sign in</a>

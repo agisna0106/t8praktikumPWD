@@ -1,38 +1,8 @@
 <?php
-session_start();
-require_once '../model/Database.php';
+require_once 'session.php';
 
-$db = new Database();
-$conn = $db->mysqli;
-
-$error = "";
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
-    $stmt->bind_param("ss", $username, $password);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    if ($result && $result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-
-        $_SESSION['users'] = [
-            'id' => $user['id'],
-            'nama' => $user['nama'],
-            'username' => $user['username'],
-            'role' => $user['role']
-        ];
-
-        header("Location: ../index.php");
-        exit;
-    } else {
-        $error = "Username atau password salah!";
-    }
-}
+$error = $_SESSION['login_error'] ?? '';
+unset($_SESSION['login_error']);
 ?>
 
 <!DOCTYPE html>
@@ -158,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-box">
         <h1>Sign in to your account</h1>
 
-        <form method="POST">
+        <form action="login.php" method="POST">
             <div>
                 <label for="username">Your email</label>
                 <input type="text" name="username" id="username" placeholder="Username" required />
@@ -177,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <p class="signup">
                 Don’t have an account yet?
-                <a href="register.php">Sign up</a>
+                <a href="registerForm.php">Sign up</a>
             </p>
         </form>
     </div>
